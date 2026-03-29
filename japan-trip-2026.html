@@ -261,17 +261,17 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;
 //  WEATHER  (historical April averages per location)
 // ═══════════════════════════════════════════════════════
 const WEATHER = {
-  1: {loc:'San Francisco',     icon:'🌤️', hi:'18°C / 64°F', lo:'12°C / 54°F', precip:'15%', humidity:'72%'},
-  2: {loc:'Taipei',            icon:'🌦️', hi:'26°C / 79°F', lo:'20°C / 68°F', precip:'45%', humidity:'81%'},
-  3: {loc:'Taipei → Tokyo',   icon:'🌦️', hi:'26°C / 79°F', lo:'16°C / 61°F', precip:'40%', humidity:'76%'},
-  4: {loc:'Tokyo',             icon:'🌸', hi:'16°C / 61°F', lo:'10°C / 50°F', precip:'30%', humidity:'62%'},
-  5: {loc:'Tokyo',             icon:'⛅', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'25%', humidity:'60%'},
-  6: {loc:'Tokyo',             icon:'🌤️', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'28%', humidity:'61%'},
-  7: {loc:'Tokyo → Kyoto',    icon:'⛅', hi:'17°C / 63°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%'},
-  8: {loc:'Osaka',             icon:'🌤️', hi:'18°C / 64°F', lo:'10°C / 50°F', precip:'25%', humidity:'63%'},
-  9: {loc:'Kyoto',             icon:'⛅', hi:'18°C / 64°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%'},
- 10: {loc:'Nagoya → Seoul',   icon:'🌤️', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'22%', humidity:'58%'},
- 11: {loc:'Seoul',             icon:'⛅', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'20%', humidity:'57%'}
+  1: {loc:'San Francisco',     icon:'🌤️', hi:'18°C / 64°F', lo:'12°C / 54°F', precip:'15%', humidity:'72%', wxUrl:'https://weather.com/weather/tenday/l/San+Francisco+CA'},
+  2: {loc:'Taipei',            icon:'🌦️', hi:'26°C / 79°F', lo:'20°C / 68°F', precip:'45%', humidity:'81%', wxUrl:'https://weather.com/weather/tenday/l/Taipei+Taiwan'},
+  3: {loc:'Taipei → Tokyo',   icon:'🌦️', hi:'26°C / 79°F', lo:'16°C / 61°F', precip:'40%', humidity:'76%', wxUrl:'https://weather.com/weather/tenday/l/Taipei+Taiwan'},
+  4: {loc:'Tokyo',             icon:'🌸', hi:'16°C / 61°F', lo:'10°C / 50°F', precip:'30%', humidity:'62%', wxUrl:'https://weather.com/weather/tenday/l/Tokyo+Japan'},
+  5: {loc:'Tokyo',             icon:'⛅', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'25%', humidity:'60%', wxUrl:'https://weather.com/weather/tenday/l/Tokyo+Japan'},
+  6: {loc:'Tokyo',             icon:'🌤️', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'28%', humidity:'61%', wxUrl:'https://weather.com/weather/tenday/l/Tokyo+Japan'},
+  7: {loc:'Tokyo → Kyoto',    icon:'⛅', hi:'17°C / 63°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%', wxUrl:'https://weather.com/weather/tenday/l/Kyoto+Japan'},
+  8: {loc:'Osaka',             icon:'🌤️', hi:'18°C / 64°F', lo:'10°C / 50°F', precip:'25%', humidity:'63%', wxUrl:'https://weather.com/weather/tenday/l/Osaka+Japan'},
+  9: {loc:'Kyoto',             icon:'⛅', hi:'18°C / 64°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%', wxUrl:'https://weather.com/weather/tenday/l/Kyoto+Japan'},
+ 10: {loc:'Nagoya → Seoul',   icon:'🌤️', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'22%', humidity:'58%', wxUrl:'https://weather.com/weather/tenday/l/Nagoya+Japan'},
+ 11: {loc:'Seoul',             icon:'⛅', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'20%', humidity:'57%', wxUrl:'https://weather.com/weather/tenday/l/Seoul+South+Korea'}
 };
 
 // ═══════════════════════════════════════════════════════
@@ -690,7 +690,10 @@ function buildSlides(){
           </div>
 
           ${(()=>{const w=WEATHER[d.day];return w?`<div class="card" style="border-color:rgba(100,160,255,.18)">
-            <div class="card-label" style="color:#90CAF9">🌡️ Weather · ${w.loc}</div>
+            <div class="card-label" style="color:#90CAF9;display:flex;justify-content:space-between;align-items:center">
+              <span>🌡️ Weather · ${w.loc}</span>
+              <a href="${w.wxUrl}" target="_blank" style="font-size:10px;font-weight:600;color:#64B5F6;text-decoration:none;border-bottom:1px solid rgba(100,160,255,.3);padding-bottom:1px;letter-spacing:.5px">weather.com ↗</a>
+            </div>
             <div class="wx-loc">${w.icon}&nbsp;Historical averages · early April</div>
             <div class="wx-grid">
               <div class="wx-cell"><div class="wx-emoji">☀️</div><div class="wx-val">${w.hi}</div><div class="wx-lbl">High</div></div>
@@ -955,6 +958,8 @@ function petal(){
   setTimeout(()=>p.remove(),8000);
 }
 setInterval(petal,600);
+
+
 petal(); petal(); petal();
 
 // ── SWIPE GESTURES (touch devices) ───────────────────

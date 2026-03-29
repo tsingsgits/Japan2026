@@ -111,6 +111,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;
 
 /* Weather widget */
 .wx-loc{font-size:10px;opacity:.45;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+
+/* Flight card */
+.flight-card{background:linear-gradient(135deg,rgba(15,25,55,.95),rgba(10,18,45,.95));
+  border:1px solid rgba(100,160,255,.28);border-radius:10px;padding:13px 15px;margin-bottom:10px}
+.fc-header{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid rgba(100,160,255,.18)}
+.fc-airline{font-size:11px;font-weight:700;letter-spacing:1.5px;color:#90CAF9;text-transform:uppercase}
+.fc-tracker{font-size:10px;font-weight:600;color:#64B5F6;text-decoration:none;
+  border-bottom:1px solid rgba(100,160,255,.3);padding-bottom:1px;transition:.15s}
+.fc-tracker:hover{border-bottom-color:rgba(100,160,255,.9)}
+.fc-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}
+.fc-point{}.fc-right{text-align:right}
+.fc-code{font-size:22px;font-weight:800;color:#fff;letter-spacing:1px}
+.fc-full{font-size:10px;opacity:.45;margin-top:1px;line-height:1.3}
+.fc-term{font-size:10px;color:#90CAF9;margin-top:2px;font-weight:500}
+.fc-time{font-size:15px;font-weight:700;margin-top:6px}
+.fc-date{font-size:9px;opacity:.45;margin-top:1px}
+.fc-mid{text-align:center}
+.fc-dur{font-size:9px;opacity:.4;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.fc-arrow{font-size:11px;opacity:.35;letter-spacing:-2px}
+@media(max-width:768px){
+  .fc-code{font-size:18px}.fc-time{font-size:13px}
+  .fc-full,.fc-term,.fc-date{font-size:9px}
+}
 .wx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .wx-cell{background:rgba(255,255,255,.06);border-radius:8px;padding:8px 4px;text-align:center}
 .wx-emoji{font-size:14px;margin-bottom:2px}
@@ -272,7 +296,16 @@ const DAYS = [
     {lat:25.0777,lng:121.2326,lbl:'🛬 TPE',num:''}
   ],
   route:[[37.6213,-122.379],[30,150],[25.0777,121.2326]],
-  notes:null
+  notes:null,
+  flights:[{
+    airline:'EVA Air',flightNum:'BR 7',
+    from:'SFO',fromFull:'San Francisco Intl',fromTerminal:'Terminal I',
+    to:'TPE',toFull:'Taipei Taoyuan Intl',toTerminal:'Terminal 2',
+    dep:'12:30',depDate:'Thu Apr 2',
+    arr:'17:20',arrDate:'Fri Apr 3',
+    duration:'~13h 50m',
+    tracker:'https://flightaware.com/live/flight/EVA7'
+  }]
 },
 {
   day:2, date:'Friday, April 3', year:'2026',
@@ -326,7 +359,16 @@ const DAYS = [
     {lat:35.6944,lng:139.7020,lbl:'🍶 Golden Gai',num:'7'}
   ],
   route:[[25.0480,121.5172],[25.0370,121.4998],[25.0349,121.5208],[25.0220,121.5701],[25.0335,121.5654],[25.0694,121.5522]],
-  notes:'Optimized south→center→east route. Elephant Mtn & 101 are back-to-back — best views in the morning light!'
+  notes:'Optimized south→center→east route. Elephant Mtn & 101 are back-to-back — best views in the morning light!',
+  flights:[{
+    airline:'EVA Air',flightNum:'BR 190',
+    from:'TSA',fromFull:'Taipei Songshan',fromTerminal:'Terminal 1',
+    to:'HND',toFull:'Tokyo Intl Haneda',toTerminal:'Terminal 3',
+    dep:'16:20',depDate:'Sat Apr 4',
+    arr:'20:20',arrDate:'Sat Apr 4',
+    duration:'~3h 0m',
+    tracker:'https://flightaware.com/live/flight/EVA190'
+  }]
 },
 {
   day:4, date:'Sunday, April 5', year:'2026',
@@ -531,7 +573,16 @@ const DAYS = [
     {lat:37.5748,lng:126.9960,lbl:'Ikseondong',num:'2'}
   ],
   route:[[37.5545,126.9706],[37.5361,126.9702],[37.5634,126.9850],[37.5748,126.9960]],
-  notes:'Pro tip from a local: Ikseondong Hanok Village beats Myeong-dong for atmosphere. Go Myeong-dong first (closer to station), then explore Ikseondong\'s tiny restaurants and cafes!'
+  notes:'Pro tip from a local: Ikseondong Hanok Village beats Myeong-dong for atmosphere. Go Myeong-dong first (closer to station), then explore Ikseondong\'s tiny restaurants and cafes!',
+  flights:[{
+    airline:'Asiana Airlines',flightNum:'OZ 123',
+    from:'NGO',fromFull:'Nagoya Chubu Centrair',fromTerminal:'',
+    to:'ICN',toFull:'Seoul Incheon Intl',toTerminal:'',
+    dep:'19:00',depDate:'Sat Apr 11',
+    arr:'20:55',arrDate:'Sat Apr 11',
+    duration:'~1h 55m',
+    tracker:'https://flightaware.com/live/flight/AAR123'
+  }]
 },
 {
   day:11, date:'Sunday, April 12', year:'2026',
@@ -558,7 +609,16 @@ const DAYS = [
     {lat:37.4602,lng:126.4407,lbl:'✈ Incheon',num:'P'}
   ],
   route:[[37.5796,126.9770],[37.5741,126.9768],[37.5824,126.9850],[37.5563,126.9225]],
-  notes:'Optimized loop: Palace → Gwanghwamun (back-to-back, very efficient) → Bukchon (walking) → Hongdae (subway). Leave Hongdae by 3 PM for airport.'
+  notes:'Optimized loop: Palace → Gwanghwamun (back-to-back, very efficient) → Bukchon (walking) → Hongdae (subway). Leave Hongdae by 3 PM for airport.',
+  flights:[{
+    airline:'Asiana Airlines',flightNum:'OZ 212',
+    from:'ICN',fromFull:'Seoul Incheon Intl',fromTerminal:'',
+    to:'SFO',toFull:'San Francisco Intl',toTerminal:'',
+    dep:'20:50',depDate:'Sun Apr 12',
+    arr:'15:20',arrDate:'Sun Apr 12 (same calendar day)',
+    duration:'~10h 30m',
+    tracker:'https://flightaware.com/live/flight/AAR212'
+  }]
 }
 ];
 
@@ -596,6 +656,33 @@ function buildSlides(){
             <div class="card-label">✈ Transit</div>
             <div class="transit-text" style="white-space:pre-line">${d.transit}</div>
           </div>
+
+          ${d.flights?d.flights.map(f=>`<div class="flight-card">
+            <div class="fc-header">
+              <span class="fc-airline">✈ ${f.airline} &nbsp;·&nbsp; ${f.flightNum}</span>
+              <a href="${f.tracker}" target="_blank" class="fc-tracker">FlightAware ↗</a>
+            </div>
+            <div class="fc-route">
+              <div class="fc-point">
+                <div class="fc-code">${f.from}</div>
+                <div class="fc-full">${f.fromFull}</div>
+                ${f.fromTerminal?`<div class="fc-term">${f.fromTerminal}</div>`:''}
+                <div class="fc-time">${f.dep}</div>
+                <div class="fc-date">${f.depDate}</div>
+              </div>
+              <div class="fc-mid">
+                <div class="fc-dur">${f.duration}</div>
+                <div class="fc-arrow">────✈────</div>
+              </div>
+              <div class="fc-point fc-right">
+                <div class="fc-code">${f.to}</div>
+                <div class="fc-full">${f.toFull}</div>
+                ${f.toTerminal?`<div class="fc-term">${f.toTerminal}</div>`:''}
+                <div class="fc-time">${f.arr}</div>
+                <div class="fc-date">${f.arrDate}</div>
+              </div>
+            </div>
+          </div>`).join(''):''}
 
           <div class="card">
             <div class="card-label">🏨 Accommodation</div>

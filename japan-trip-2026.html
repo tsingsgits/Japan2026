@@ -60,6 +60,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;
   justify-content:center;font-size:10px;font-weight:800;margin-top:1px}
 .act-body{flex:1}
 .act-name{font-size:13px;font-weight:600;line-height:1.3}
+.act-link{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.22);padding-bottom:1px;transition:.15s}
+.act-link:hover{border-bottom-color:rgba(255,255,255,.75)}
 .act-note{font-size:11px;opacity:.5;margin-top:2px;line-height:1.4}
 
 /* Hotel */
@@ -311,7 +313,8 @@ const DAYS = [
     {n:'④ Taipei 101',note:'Walk down from Elephant Mountain · Grab lunch near 101'},
     {n:'Leave for Songshan Airport by 1:30 PM',note:'Taxi/MRT ~30 min to TSA · Fly 4:20 PM'},
     {n:'Arrive Haneda 8:20 PM → Shinagawa Station',note:'Take Keikyu Line to Shinjuku'},
-    {n:'🌃 11 PM: Kabukicho & Golden Gai',note:'Shinjuku neon wonderland — explore near your hotel'}
+    {n:'🏮 Kabukicho Entertainment District',note:'Exit hotel heading south · Japan\'s largest entertainment district · neon arcades, karaoke, themed bars, izakayas — safe to explore late night',url:'https://jonellepatrick.com/shinjuku-area/'},
+    {n:'⑦ 🍶 Golden Gai',note:'📍 Getting there: 3-min walk from hotel → cross Kabukicho\'s main street heading west → turn left just before Hanazono Shrine → enter the 6 narrow lantern-lit alleys on your right · 200+ micro-bars each seating 5–8 · Most open 9 PM–4 AM · Budget ¥500–2,000 cover + drinks per bar · Look for English menu signs outside — those bars actively welcome foreigners · Best experienced after 10 PM when the atmosphere peaks',url:'https://jonellepatrick.com/shinjuku-area/'}
   ],
   markers:[
     {lat:25.0480,lng:121.5172,lbl:'🏨 Hostel',num:'S'},
@@ -319,7 +322,8 @@ const DAYS = [
     {lat:25.0349,lng:121.5208,lbl:'CKS Memorial',num:'2'},
     {lat:25.0220,lng:121.5701,lbl:'Elephant Mtn',num:'3'},
     {lat:25.0335,lng:121.5654,lbl:'Taipei 101',num:'4'},
-    {lat:25.0694,lng:121.5522,lbl:'✈ Songshan',num:'✈'}
+    {lat:25.0694,lng:121.5522,lbl:'✈ Songshan',num:'✈'},
+    {lat:35.6944,lng:139.7020,lbl:'🍶 Golden Gai',num:'7'}
   ],
   route:[[25.0480,121.5172],[25.0370,121.4998],[25.0349,121.5208],[25.0220,121.5701],[25.0335,121.5654],[25.0694,121.5522]],
   notes:'Optimized south→center→east route. Elephant Mtn & 101 are back-to-back — best views in the morning light!'
@@ -333,10 +337,10 @@ const DAYS = [
   hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
   center:[35.698,139.743], zoom:12,
   activities:[
-    {n:'① Sensoji Temple & Asakusa',note:'Metro: Shinjuku → Asakusa Line (~30 min) · Tokyo\'s oldest temple, open 24 hrs · Nakamise shopping street'},
-    {n:'② Kappabashi "Kitchen Town"',note:'10 min walk north of Sensoji · wholesale kitchenware, plastic food displays'},
-    {n:'③ Akihabara Electric Town',note:'Metro or 20 min walk SW from Kappabashi · anime, electronics, arcades'},
-    {n:'④ Ueno Park & Museums',note:'Walk 15 min NW from Akihabara · cherry blossoms, Tokyo National Museum, Ueno Zoo'},
+    {n:'① Sensoji Temple & Asakusa',note:'Metro: Shinjuku → Asakusa Line (~30 min) · Tokyo\'s oldest temple, open 24 hrs · Nakamise shopping street',url:'https://jonellepatrick.com/asakusa-area/'},
+    {n:'② Kappabashi "Kitchen Town"',note:'10 min walk north of Sensoji · wholesale kitchenware, plastic food displays',url:'https://jonellepatrick.com/kappabashi-street/'},
+    {n:'③ Akihabara Electric Town',note:'Metro or 20 min walk SW from Kappabashi · anime, electronics, arcades',url:'https://jonellepatrick.com/akihabara-area/'},
+    {n:'④ Ueno Park & Museums',note:'Walk 15 min NW from Akihabara · cherry blossoms, Tokyo National Museum, Ueno Zoo',url:'https://jonellepatrick.com/ueno-area/'},
     {n:'Return via Yamanote Line to Shinjuku',note:'~20 min direct from Ueno'}
   ],
   markers:[
@@ -380,10 +384,10 @@ const DAYS = [
   hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
   center:[35.670,139.703], zoom:14,
   activities:[
-    {n:'① Meiji Jingu Shrine',note:'10 min walk from hotel or metro to Harajuku station · Serene forest shrine, towering torii gates'},
-    {n:'② Takeshita Street',note:'5 min walk from Meiji Jingu exit · Teen fashion, rainbow crepes, bizarre fashion statements'},
-    {n:'③ Omotesando Avenue',note:'Walk south from Harajuku · Tokyo\'s Champs-Élysées — upscale shops, architecture'},
-    {n:'④ Shibuya Crossing',note:'Walk 10 min south from Omotesando · World\'s busiest intersection — scramble at peak hours (5–9 PM)'},
+    {n:'① Meiji Jingu Shrine',note:'10 min walk from hotel or metro to Harajuku station · Serene forest shrine, towering torii gates',url:'https://jonellepatrick.com/meiji-shrine/'},
+    {n:'② Takeshita Street',note:'5 min walk from Meiji Jingu exit · Teen fashion, rainbow crepes, bizarre fashion statements',url:'https://jonellepatrick.com/harajuku-area/'},
+    {n:'③ Omotesando Avenue',note:'Walk south from Harajuku · Tokyo\'s Champs-Élysées — upscale shops, architecture',url:'https://jonellepatrick.com/harajuku-area/'},
+    {n:'④ Shibuya Crossing',note:'Walk 10 min south from Omotesando · World\'s busiest intersection — scramble at peak hours (5–9 PM)',url:'https://jonellepatrick.com/shibuya-area/'},
     {n:'Shibuya → Shinjuku back to hotel',note:'Yamanote Line 2 stops north · ~8 min'}
   ],
   markers:[
@@ -405,9 +409,9 @@ const DAYS = [
   hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
   center:[35.681,139.718], zoom:13,
   activities:[
-    {n:'① Tokyo Metropolitan Govt. Building',note:'5 min walk from hotel · FREE observatory at 202m · opens 9 AM · sweeping Tokyo views'},
-    {n:'② Shinjuku Gyoen Garden',note:'15 min walk east · Cherry blossoms in full bloom in early April! Open 9 AM · ¥500 entry'},
-    {n:'③ Afternoon in Ginza',note:'Metro: Shinjuku → Ginza (~20 min) · Luxury shopping, street art, Tsukiji outer market nearby'},
+    {n:'① Tokyo Metropolitan Govt. Building',note:'5 min walk from hotel · FREE observatory at 202m · opens 9 AM · sweeping Tokyo views',url:'https://jonellepatrick.com/shinjuku-area/'},
+    {n:'② Shinjuku Gyoen Garden',note:'15 min walk east · Cherry blossoms in full bloom in early April! Open 9 AM · ¥500 entry',url:'https://jonellepatrick.com/shinjuku-gyo-en-national-garden/'},
+    {n:'③ Afternoon in Ginza',note:'Metro: Shinjuku → Ginza (~20 min) · Luxury shopping, street art, Tsukiji outer market nearby',url:'https://jonellepatrick.com/ginza-area/'},
     {n:'④ Tsukiji Outer Market (optional)',note:'10 min walk from Ginza · Fresh sushi, tamagoyaki, street food lunch'}
   ],
   markers:[
@@ -429,7 +433,7 @@ const DAYS = [
   hotel:'🏨 Urban Hotel Kyoto\nFushimi-ku, Fukakusa Nishiura-cho 4-59, Kyoto\n☎ +81 75 647 0606',
   center:[35.003,135.770], zoom:13,
   activities:[
-    {n:'① TeamLabs Planet, Toyosu (8:30 AM)',note:'Pre-book tickets! Immersive digital art · Exit by 11:30 AM · Metro back to Tokyo Station'},
+    {n:'① TeamLabs Planet, Toyosu (8:30 AM)',note:'Pre-book tickets! Immersive digital art · Exit by 11:30 AM · Metro back to Tokyo Station',url:'https://jonellepatrick.com/teamlab-planets/'},
     {n:'② Tokyo Station → Shinkansen 12:48 PM',note:'Take NOZOMI 71 — ~2 hrs 12 min · ¥13,620 per person'},
     {n:'③ Check in: Urban Hotel Kyoto (Fushimi)',note:'Arrive 3 PM · 15 min from Kyoto Station by subway/cab'},
     {n:'④ Nijo Castle',note:'15 min by taxi · Nightingale floors, Shogun palace, stunning gardens'},
@@ -618,7 +622,7 @@ function buildSlides(){
                     ${ai+1}
                   </div>
                   <div class="act-body">
-                    <div class="act-name">${a.n}</div>
+                    <div class="act-name">${a.url?`<a href="${a.url}" target="_blank" class="act-link">${a.n} ↗</a>`:a.n}</div>
                     <div class="act-note">${a.note}</div>
                   </div>
                 </li>`).join('')}

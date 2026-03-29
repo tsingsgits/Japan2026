@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japan Trip 2026 🗾</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#0d0d1a;color:#fff}
+
+/* SLIDES */
+.slide{position:fixed;inset:0;display:none;animation:fadeIn .35s ease}
+.slide.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* COVER */
+#slide-0{flex-direction:column;align-items:center;justify-content:center;background:#0d0d1a}
+#cover-bg{position:absolute;inset:0;opacity:.12;z-index:0}
+.cover-body{position:relative;z-index:1;text-align:center;padding:20px}
+.cover-jp{font-family:'Noto Serif JP',serif;font-size:72px;font-weight:700;
+  background:linear-gradient(135deg,#ffd700 0%,#ff6b9d 50%,#a855f7 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:8px}
+.cover-en{font-size:17px;letter-spacing:6px;opacity:.55;margin-bottom:20px;text-transform:uppercase}
+.cover-dates{font-size:15px;letter-spacing:4px;opacity:.45;margin-bottom:32px}
+.cover-route{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;max-width:560px;font-size:13px;opacity:.7}
+.rc{font-weight:600;color:#fff;opacity:1}.ra{opacity:.35}
+.start-btn{margin-top:36px;padding:12px 36px;border-radius:30px;border:1.5px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:600;letter-spacing:2px;
+  cursor:pointer;transition:.2s;backdrop-filter:blur(6px)}
+.start-btn:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.5)}
+
+/* DAY SLIDES — split layout */
+.day-slide{width:100%;height:100%;display:flex}
+.map-pane{flex:1;position:relative;min-width:0}
+.map-pane .leaflet-container{width:100%;height:100%}
+.info-pane{width:380px;flex-shrink:0;background:linear-gradient(160deg,#12122a 0%,#0e1e3a 60%,#0c1a32 100%);
+  overflow-y:auto;display:flex;flex-direction:column;padding:24px 20px 80px}
+.info-pane::-webkit-scrollbar{width:3px}
+.info-pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+/* Day header */
+.dh-top{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.day-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.day-num{font-size:12px;opacity:.45;font-weight:500;letter-spacing:1px}
+.dh-date{font-size:21px;font-weight:700;line-height:1.2;margin-bottom:3px}
+.dh-loc{font-size:13px;opacity:.6;margin-bottom:18px;display:flex;align-items:center;gap:5px}
+
+/* Cards */
+.card{background:rgba(255,255,255,.06);border-radius:10px;padding:13px 15px;margin-bottom:10px;
+  border:1px solid rgba(255,255,255,.07)}
+.card-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.4;margin-bottom:8px}
+
+/* Activities */
+.act-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.act-item{display:flex;gap:10px;align-items:flex-start}
+.act-num{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:800;margin-top:1px}
+.act-body{flex:1}
+.act-name{font-size:13px;font-weight:600;line-height:1.3}
+.act-note{font-size:11px;opacity:.5;margin-top:2px;line-height:1.4}
+
+/* Hotel */
+.hotel-text{font-size:12px;line-height:1.7;opacity:.85}
+
+/* Transit */
+.transit-text{font-size:12px;line-height:1.7;opacity:.85}
+.transit-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;background:rgba(255,255,255,.1);margin-bottom:8px}
+
+/* Notes */
+.notes-text{font-size:11px;line-height:1.65;opacity:.55;font-style:italic}
+
+/* NAVIGATION */
+.nav-bar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;
+  display:flex;align-items:center;gap:10px;background:rgba(10,10,30,.75);
+  backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);padding:8px 16px;border-radius:30px}
+.nb{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;
+  cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.15s}
+.nb:hover{background:rgba(255,255,255,.25)}
+.np{font-size:12px;opacity:.55;min-width:60px;text-align:center}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:.2s}
+.dot.on{background:#fff;transform:scale(1.4)}
+.dots{display:flex;gap:4px;flex-wrap:wrap;max-width:180px;justify-content:center}
+.key-hint{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);font-size:10px;
+  opacity:.2;letter-spacing:2px;white-space:nowrap;z-index:9998}
+
+/* Map markers */
+.custom-marker{display:flex;align-items:center;justify-content:center;width:28px;height:28px;
+  border-radius:50%;border:2.5px solid #fff;font-size:11px;font-weight:800;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.hotel-icon{font-size:14px;background:rgba(0,0,0,.6);border-radius:8px;padding:3px 6px;
+  white-space:nowrap;color:#fff;border:1px solid rgba(255,255,255,.3);font-size:11px;font-weight:600}
+
+/* Suggestion & food sections */
+.sugg-area{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.45;margin:10px 0 6px}
+.sugg-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.sugg-item{display:flex;gap:9px;align-items:flex-start}
+.sugg-num{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font-size:9px;font-weight:800;margin-top:1px}
+.food-dot{width:20px;height:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:0px}
+.sugg-body{flex:1}
+.sugg-name{font-size:12px;font-weight:600;color:#fff;text-decoration:none;line-height:1.3;
+  border-bottom:1px solid rgba(255,255,255,.15);transition:.15s}
+.sugg-name:hover{border-bottom-color:rgba(255,255,255,.6);color:#fff}
+.sugg-note{font-size:10px;opacity:.45;margin-top:2px;line-height:1.4}
+
+/* Weather widget */
+.wx-loc{font-size:10px;opacity:.45;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.wx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.wx-cell{background:rgba(255,255,255,.06);border-radius:8px;padding:8px 4px;text-align:center}
+.wx-emoji{font-size:14px;margin-bottom:2px}
+.wx-val{font-size:12px;font-weight:700;line-height:1.3}
+.wx-lbl{font-size:8px;opacity:.4;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+/* Route line popup */
+.leaflet-popup-content-wrapper{background:rgba(20,20,40,.95);color:#fff;border:1px solid rgba(255,255,255,.15);
+  border-radius:8px;backdrop-filter:blur(10px)}
+.leaflet-popup-tip{background:rgba(20,20,40,.95)}
+
+/* ── MOBILE / iPHONE ─────────────────────────────────── */
+@media (max-width: 768px){
+  /* Stack map on top, info scrolls below */
+  .day-slide{flex-direction:column}
+  .map-pane{width:100%;height:42vw;min-height:190px;max-height:270px;flex-shrink:0}
+  .info-pane{
+    width:100%;flex:1;min-height:0;
+    padding:14px 14px calc(76px + env(safe-area-inset-bottom,16px));
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    overscroll-behavior:contain;
+  }
+
+  /* Cover */
+  .cover-jp{font-size:40px}
+  .cover-en{font-size:11px;letter-spacing:3px}
+  .cover-dates{font-size:11px;margin-bottom:20px}
+  .cover-route{font-size:11px;gap:4px 3px}
+  .start-btn{margin-top:22px;font-size:13px;padding:10px 26px}
+
+  /* Day header */
+  .dh-top{margin-bottom:3px}
+  .day-badge{font-size:9px;padding:2px 8px}
+  .day-num{font-size:10px}
+  .dh-date{font-size:16px}
+  .dh-loc{font-size:11px;margin-bottom:12px}
+
+  /* Cards */
+  .card{padding:10px 12px;margin-bottom:8px;border-radius:9px}
+  .card-label{font-size:8px;letter-spacing:1.5px;margin-bottom:6px}
+
+  /* Activities */
+  .act-list{gap:7px}
+  .act-num{width:20px;height:20px;font-size:9px;flex-shrink:0}
+  .act-name{font-size:12px}
+  .act-note{font-size:10px}
+
+  /* Hotel / transit */
+  .hotel-text,.transit-text{font-size:11px;line-height:1.6}
+  .transit-pill{font-size:10px}
+
+  /* Weather — 2×2 grid on small screen */
+  .wx-grid{grid-template-columns:repeat(2,1fr);gap:5px}
+  .wx-cell{padding:7px 4px}
+  .wx-emoji{font-size:13px}
+  .wx-val{font-size:12px}
+  .wx-lbl{font-size:7px}
+  .wx-loc{font-size:9px;margin-bottom:6px}
+
+  /* Suggestions & food — bigger tap targets on links */
+  .sugg-area{font-size:9px;margin:8px 0 5px}
+  .sugg-list{gap:6px}
+  .sugg-num,.food-dot{width:18px;height:18px;font-size:9px}
+  .sugg-name{font-size:11px;padding:3px 0;display:inline-block}
+  .sugg-note{font-size:9px}
+
+  /* Notes */
+  .notes-text{font-size:10px}
+
+  /* Nav bar — 44px tap targets + home-indicator clearance */
+  .nav-bar{
+    bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    padding:7px 14px;gap:10px;
+  }
+  .nb{width:44px;height:44px;font-size:20px}
+  .np{font-size:13px;min-width:50px}
+  .dots{display:none}   /* too many dots for small screen */
+  .key-hint{display:none}
+}
+
+/* Notch / Dynamic Island top padding on cover */
+@supports (padding-top:env(safe-area-inset-top)){
+  #slide-0{padding-top:env(safe-area-inset-top,0px)}
+}
+</style>
+</head>
+<body>
+
+<!-- COVER SLIDE -->
+<div class="slide active" id="slide-0">
+  <div id="cover-bg"><div id="cover-map" style="width:100%;height:100%"></div></div>
+  <div class="cover-body">
+    <div class="cover-jp">日本の旅</div>
+    <div class="cover-en">Japan · Taipei · Seoul 2026</div>
+    <div class="cover-dates">April 2 – 12 &nbsp;·&nbsp; 11 Days</div>
+    <div class="cover-route">
+      <span class="rc">🇺🇸 San Francisco</span><span class="ra">✈</span>
+      <span class="rc">🇹🇼 Taipei</span><span class="ra">✈</span>
+      <span class="rc">🗼 Tokyo</span><span class="ra">🚄</span>
+      <span class="rc">⛩️ Kyoto</span><span class="ra">🚃</span>
+      <span class="rc">🏯 Osaka</span><span class="ra">🚄</span>
+      <span class="rc">🇰🇷 Seoul</span><span class="ra">✈</span>
+      <span class="rc">🇺🇸 SFO</span>
+    </div>
+    <button class="start-btn" onclick="goTo(1)">BEGIN JOURNEY →</button>
+  </div>
+</div>
+
+<!-- DAY SLIDES CONTAINER -->
+<div id="slides"></div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <button class="nb" onclick="prev()">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="np" id="prog">1 / 12</span>
+  <button class="nb" onclick="next()">&#8594;</button>
+</div>
+<div class="key-hint">← → ARROW KEYS</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  WEATHER  (historical April averages per location)
+// ═══════════════════════════════════════════════════════
+const WEATHER = {
+  1: {loc:'San Francisco',     icon:'🌤️', hi:'18°C / 64°F', lo:'12°C / 54°F', precip:'15%', humidity:'72%'},
+  2: {loc:'Taipei',            icon:'🌦️', hi:'26°C / 79°F', lo:'20°C / 68°F', precip:'45%', humidity:'81%'},
+  3: {loc:'Taipei → Tokyo',   icon:'🌦️', hi:'26°C / 79°F', lo:'16°C / 61°F', precip:'40%', humidity:'76%'},
+  4: {loc:'Tokyo',             icon:'🌸', hi:'16°C / 61°F', lo:'10°C / 50°F', precip:'30%', humidity:'62%'},
+  5: {loc:'Tokyo',             icon:'⛅', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'25%', humidity:'60%'},
+  6: {loc:'Tokyo',             icon:'🌤️', hi:'17°C / 63°F', lo:'11°C / 52°F', precip:'28%', humidity:'61%'},
+  7: {loc:'Tokyo → Kyoto',    icon:'⛅', hi:'17°C / 63°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%'},
+  8: {loc:'Osaka',             icon:'🌤️', hi:'18°C / 64°F', lo:'10°C / 50°F', precip:'25%', humidity:'63%'},
+  9: {loc:'Kyoto',             icon:'⛅', hi:'18°C / 64°F', lo:'9°C / 48°F',  precip:'30%', humidity:'65%'},
+ 10: {loc:'Nagoya → Seoul',   icon:'🌤️', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'22%', humidity:'58%'},
+ 11: {loc:'Seoul',             icon:'⛅', hi:'14°C / 57°F', lo:'6°C / 43°F',  precip:'20%', humidity:'57%'}
+};
+
+// ═══════════════════════════════════════════════════════
+//  TRIP DATA
+// ═══════════════════════════════════════════════════════
+const DAYS = [
+{
+  day:1, date:'Thursday, April 2', year:'2026',
+  city:'TRANSIT', color:'#7F8C8D', emoji:'✈️',
+  heading:'Departure Day',
+  location:'San Francisco → Taipei',
+  transit:'✈️ Leave SFO 12:30 PM  ·  ~12 hr flight',
+  hotel:'In flight — arriving Taipei, Friday April 3',
+  center:[34, 150], zoom:3,
+  activities:[
+    {n:'Depart SFO 12:30 PM',note:'Check in 2–3 hrs early · SFO International Terminal'},
+    {n:'Pacific Crossing ✈️',note:'~12 hour flight across the International Date Line'},
+    {n:'Arrive Taipei TPE — April 3 at 5:30 PM',note:'Taoyuan International Airport'}
+  ],
+  markers:[
+    {lat:37.6213,lng:-122.379,lbl:'✈ SFO',num:''},
+    {lat:25.0777,lng:121.2326,lbl:'🛬 TPE',num:''}
+  ],
+  route:[[37.6213,-122.379],[30,150],[25.0777,121.2326]],
+  notes:null
+},
+{
+  day:2, date:'Friday, April 3', year:'2026',
+  city:'TAIPEI', color:'#E91E8C', emoji:'🌸',
+  heading:'Arriving Taipei',
+  location:'Taipei, Taiwan',
+  transit:'🛬 Arrive Taipei TPE 5:30 PM\n↳ MRT from airport → Taipei Main Station (~70 min)',
+  hotel:'🏨 Taiwan Youth Hostel & Capsule Hotel\nNo.11, Qingdao West Road, Zhongzheng District, Taipei',
+  center:[25.051,121.512], zoom:14,
+  activities:[
+    {n:'Take MRT from airport',note:'Taoyuan Airport Line → Taipei Main Station · every 20 min · ~70 min'},
+    {n:'Check in & freshen up',note:'Hostel in Zhongzheng District · arrive by 7:30–8 PM'},
+    {n:'① Ximending Street',note:'Taipei\'s Times Square — neon lights, street food, fashion stalls'},
+    {n:'② Dihua Old Street',note:'Cab north ~10 min — historic shophouses, herbs, dried goods'},
+    {n:'③ Ningxia Night Market',note:'2 min walk from Dihua — oyster vermicelli, scallion pancakes, stinky tofu'}
+  ],
+  markers:[
+    {lat:25.0480,lng:121.5172,lbl:'🏨 Hostel',num:'H'},
+    {lat:25.0437,lng:121.5082,lbl:'Ximending',num:'1'},
+    {lat:25.0566,lng:121.5095,lbl:'Dihua St.',num:'2'},
+    {lat:25.0524,lng:121.5125,lbl:'Ningxia Market',num:'3'}
+  ],
+  route:[[25.0480,121.5172],[25.0437,121.5082],[25.0566,121.5095],[25.0524,121.5125]],
+  notes:'Tip: Get an EasyCard at the airport for MRT, buses, and convenience stores throughout Taiwan.'
+},
+{
+  day:3, date:'Saturday, April 4', year:'2026',
+  city:'TAIPEI→TOKYO', color:'#E91E8C', emoji:'🌸✈️',
+  heading:'Taipei Sights → Fly to Tokyo',
+  location:'Taipei (morning) · Tokyo (night)',
+  transit:'✈️ Leave Songshan Airport (TSA) 4:20 PM → Arrive Haneda (HND) 8:20 PM\n↳ Leave for TSA by 1:30 PM · Train to Shinagawa ~30 min',
+  hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku, Tokyo',
+  center:[25.035,121.538], zoom:13,
+  activities:[
+    {n:'① Lungshan Temple',note:'Taxi south ~15 min from hostel · Open from 7 AM · Dragon columns, incense, divine'},
+    {n:'② Chiang Kai-shek Memorial',note:'Cab 15 min north · Changing of the Guard on the hour'},
+    {n:'③ Elephant Mountain (Xiangshan)',note:'MRT to Xiangshan · 20-min hike for iconic Taipei 101 panorama'},
+    {n:'④ Taipei 101',note:'Walk down from Elephant Mountain · Grab lunch near 101'},
+    {n:'Leave for Songshan Airport by 1:30 PM',note:'Taxi/MRT ~30 min to TSA · Fly 4:20 PM'},
+    {n:'Arrive Haneda 8:20 PM → Shinagawa Station',note:'Take Keikyu Line to Shinjuku'},
+    {n:'🌃 11 PM: Kabukicho & Golden Gai',note:'Shinjuku neon wonderland — explore near your hotel'}
+  ],
+  markers:[
+    {lat:25.0480,lng:121.5172,lbl:'🏨 Hostel',num:'S'},
+    {lat:25.0370,lng:121.4998,lbl:'Lungshan Temple',num:'1'},
+    {lat:25.0349,lng:121.5208,lbl:'CKS Memorial',num:'2'},
+    {lat:25.0220,lng:121.5701,lbl:'Elephant Mtn',num:'3'},
+    {lat:25.0335,lng:121.5654,lbl:'Taipei 101',num:'4'},
+    {lat:25.0694,lng:121.5522,lbl:'✈ Songshan',num:'✈'}
+  ],
+  route:[[25.0480,121.5172],[25.0370,121.4998],[25.0349,121.5208],[25.0220,121.5701],[25.0335,121.5654],[25.0694,121.5522]],
+  notes:'Optimized south→center→east route. Elephant Mtn & 101 are back-to-back — best views in the morning light!'
+},
+{
+  day:4, date:'Sunday, April 5', year:'2026',
+  city:'TOKYO', color:'#E53935', emoji:'🗼',
+  heading:'Tokyo — East Side & Asakusa',
+  location:'Tokyo, Japan',
+  transit:'🚇 Base: Kabukicho (Shinjuku) · All destinations reachable by Tokyo Metro',
+  hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
+  center:[35.698,139.743], zoom:12,
+  activities:[
+    {n:'① Sensoji Temple & Asakusa',note:'Metro: Shinjuku → Asakusa Line (~30 min) · Tokyo\'s oldest temple, open 24 hrs · Nakamise shopping street'},
+    {n:'② Kappabashi "Kitchen Town"',note:'10 min walk north of Sensoji · wholesale kitchenware, plastic food displays'},
+    {n:'③ Akihabara Electric Town',note:'Metro or 20 min walk SW from Kappabashi · anime, electronics, arcades'},
+    {n:'④ Ueno Park & Museums',note:'Walk 15 min NW from Akihabara · cherry blossoms, Tokyo National Museum, Ueno Zoo'},
+    {n:'Return via Yamanote Line to Shinjuku',note:'~20 min direct from Ueno'}
+  ],
+  markers:[
+    {lat:35.6938,lng:139.7046,lbl:'🏨 Hotel',num:'H'},
+    {lat:35.7147,lng:139.7966,lbl:'Sensoji',num:'1'},
+    {lat:35.7185,lng:139.7920,lbl:'Kappabashi',num:'2'},
+    {lat:35.7023,lng:139.7745,lbl:'Akihabara',num:'3'},
+    {lat:35.7147,lng:139.7733,lbl:'Ueno Park',num:'4'}
+  ],
+  route:[[35.6938,139.7046],[35.7147,139.7966],[35.7185,139.7920],[35.7023,139.7745],[35.7147,139.7733],[35.6938,139.7046]],
+  notes:'Asakusa + Kappabashi + Akihabara form a natural eastern loop. April = cherry blossom peak 🌸 Ueno Park will be magical!',
+  suggestions:[
+    {area:'Shinjuku (Near Hotel)', acolor:'#9B59B6', items:[
+      {n:'Hanazono Shrine',note:'Serene Shinto shrine hidden inside Kabukicho · free · open 24 hrs',url:'https://www.hanazono-jinja.or.jp/',lat:35.6920,lng:139.7055},
+      {n:'Kabukicho Tower',note:'Tokyo\'s newest 48-floor landmark · rooftop sky lounge & entertainment complex',url:'https://kabukicho-tower.jp/',lat:35.6947,lng:139.7028},
+      {n:'Isetan Shinjuku',note:'Iconic department store · world-class depachika basement food hall',url:'https://www.isetan.mistore.jp/shinjuku.html',lat:35.6942,lng:139.7070}
+    ]},
+    {area:'Akihabara', acolor:'#E53935', items:[
+      {n:'Radio Kaikan',note:'10-floor otaku shopping complex · figures, manga & vintage electronics',url:'https://www.akihabara-radiokaikan.co.jp/',lat:35.7003,lng:139.7720},
+      {n:'Kotobukiya Flagship',note:'Premium anime, Star Wars & Marvel model kits & figures',url:'https://www.kotobukiya.co.jp/store/akihabara/',lat:35.7006,lng:139.7714},
+      {n:'Mandarake Complex',note:'8 floors of vintage manga, rare toys & secondhand collectibles',url:'https://www.mandarake.co.jp/shop/complex/',lat:35.7010,lng:139.7727}
+    ]}
+  ],
+  food:[
+    {area:'Shinjuku', items:[
+      {n:'Ain Soph Journey',note:'Fully plant-based · vegan burgers & French-inspired desserts · book ahead',url:'https://ain-soph.jp/en/journey/',lat:35.6931,lng:139.7023},
+      {n:'Nagi Shokudo',note:'Beloved tiny vegan café · seasonal teishoku set meals · cash only',url:'https://nagishokudo.com/',lat:35.6918,lng:139.7008}
+    ]},
+    {area:'Akihabara / Nearby', items:[
+      {n:'T\'s Tantan (Ueno — 1 stop)',note:'Famous vegan ramen · rich sesame-tahini broth · no animal products',url:'https://ts-restaurant.jp/',lat:35.7130,lng:139.7755},
+      {n:'Coco Ichibanya Curry',note:'Japan\'s top curry chain · veg/vegan menu clearly labeled · multiple Akihabara branches',url:'https://www.ichibanya.co.jp/eng/',lat:35.7000,lng:139.7730}
+    ]}
+  ]
+},
+{
+  day:5, date:'Monday, April 6', year:'2026',
+  city:'TOKYO', color:'#E53935', emoji:'🗼',
+  heading:'Tokyo — Harajuku & Shibuya',
+  location:'Tokyo, Japan',
+  transit:'🚇 Yamanote Line or walk — all destinations within 2 km of each other',
+  hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
+  center:[35.670,139.703], zoom:14,
+  activities:[
+    {n:'① Meiji Jingu Shrine',note:'10 min walk from hotel or metro to Harajuku station · Serene forest shrine, towering torii gates'},
+    {n:'② Takeshita Street',note:'5 min walk from Meiji Jingu exit · Teen fashion, rainbow crepes, bizarre fashion statements'},
+    {n:'③ Omotesando Avenue',note:'Walk south from Harajuku · Tokyo\'s Champs-Élysées — upscale shops, architecture'},
+    {n:'④ Shibuya Crossing',note:'Walk 10 min south from Omotesando · World\'s busiest intersection — scramble at peak hours (5–9 PM)'},
+    {n:'Shibuya → Shinjuku back to hotel',note:'Yamanote Line 2 stops north · ~8 min'}
+  ],
+  markers:[
+    {lat:35.6938,lng:139.7046,lbl:'🏨 Hotel',num:'H'},
+    {lat:35.6764,lng:139.6993,lbl:'Meiji Jingu',num:'1'},
+    {lat:35.6710,lng:139.7046,lbl:'Takeshita St.',num:'2'},
+    {lat:35.6659,lng:139.7104,lbl:'Omotesando',num:'3'},
+    {lat:35.6595,lng:139.7005,lbl:'Shibuya ✕',num:'4'}
+  ],
+  route:[[35.6938,139.7046],[35.6764,139.6993],[35.6710,139.7046],[35.6659,139.7104],[35.6595,139.7005],[35.6938,139.7046]],
+  notes:'This entire route is walkable! Meiji forest → Takeshita street makes for a perfect culture contrast. Best Shibuya crossing view: Starbucks 2nd floor or Mag\'s Park rooftop.'
+},
+{
+  day:6, date:'Tuesday, April 7', year:'2026',
+  city:'TOKYO', color:'#E53935', emoji:'🗼',
+  heading:'Tokyo — Shinjuku & Ginza',
+  location:'Tokyo, Japan',
+  transit:'🚇 Metro: Shinjuku (nearby hotel) → Ginza Line / Marunouchi Line',
+  hotel:'🏨 パレ･ドール 歌舞伎町第2\nKabukicho, Shinjuku-ku, Tokyo',
+  center:[35.681,139.718], zoom:13,
+  activities:[
+    {n:'① Tokyo Metropolitan Govt. Building',note:'5 min walk from hotel · FREE observatory at 202m · opens 9 AM · sweeping Tokyo views'},
+    {n:'② Shinjuku Gyoen Garden',note:'15 min walk east · Cherry blossoms in full bloom in early April! Open 9 AM · ¥500 entry'},
+    {n:'③ Afternoon in Ginza',note:'Metro: Shinjuku → Ginza (~20 min) · Luxury shopping, street art, Tsukiji outer market nearby'},
+    {n:'④ Tsukiji Outer Market (optional)',note:'10 min walk from Ginza · Fresh sushi, tamagoyaki, street food lunch'}
+  ],
+  markers:[
+    {lat:35.6938,lng:139.7046,lbl:'🏨 Hotel',num:'H'},
+    {lat:35.6895,lng:139.6918,lbl:'Tokyo TMG',num:'1'},
+    {lat:35.6851,lng:139.7102,lbl:'Shinjuku Gyoen',num:'2'},
+    {lat:35.6717,lng:139.7644,lbl:'Ginza',num:'3'},
+    {lat:35.6654,lng:139.7707,lbl:'Tsukiji',num:'4'}
+  ],
+  route:[[35.6938,139.7046],[35.6895,139.6918],[35.6851,139.7102],[35.6717,139.7644],[35.6654,139.7707]],
+  notes:'Last full day in Tokyo! TMG observatory is free and gives the same views as Tokyo Tower/Skytree without the crowds. Pack your bags tonight — moving to Kyoto tomorrow!'
+},
+{
+  day:7, date:'Wednesday, April 8', year:'2026',
+  city:'KYOTO', color:'#27AE60', emoji:'⛩️',
+  heading:'Tokyo → Kyoto by Shinkansen',
+  location:'Tokyo (morning) · Kyoto (afternoon)',
+  transit:'🚄 NOZOMI 71: Tokyo 12:48 PM → Kyoto 15:00 PM\n↳ Morning: TeamLabs Planet (Toyosu)',
+  hotel:'🏨 Urban Hotel Kyoto\nFushimi-ku, Fukakusa Nishiura-cho 4-59, Kyoto\n☎ +81 75 647 0606',
+  center:[35.003,135.770], zoom:13,
+  activities:[
+    {n:'① TeamLabs Planet, Toyosu (8:30 AM)',note:'Pre-book tickets! Immersive digital art · Exit by 11:30 AM · Metro back to Tokyo Station'},
+    {n:'② Tokyo Station → Shinkansen 12:48 PM',note:'Take NOZOMI 71 — ~2 hrs 12 min · ¥13,620 per person'},
+    {n:'③ Check in: Urban Hotel Kyoto (Fushimi)',note:'Arrive 3 PM · 15 min from Kyoto Station by subway/cab'},
+    {n:'④ Nijo Castle',note:'15 min by taxi · Nightingale floors, Shogun palace, stunning gardens'},
+    {n:'⑤ Nishiki Market "Kyoto\'s Kitchen"',note:'Taxi east ~10 min · 400m indoor market of pickles, tofu, matcha treats'},
+    {n:'⑥ Gion District',note:'5 min walk from Nishiki · Geisha district, preserved machiya townhouses'},
+    {n:'⑦ Kiyomizu-dera Temple',note:'20 min walk uphill from Gion · Illuminated at night in April!'}
+  ],
+  markers:[
+    {lat:35.6813,lng:139.7671,lbl:'🚄 Tokyo Stn.',num:'S'},
+    {lat:34.9859,lng:135.7588,lbl:'🚄 Kyoto Stn.',num:'K'},
+    {lat:34.9289,lng:135.7706,lbl:'🏨 Hotel',num:'H'},
+    {lat:35.0142,lng:135.7480,lbl:'Nijo Castle',num:'1'},
+    {lat:35.0042,lng:135.7653,lbl:'Nishiki Mkt.',num:'2'},
+    {lat:35.0037,lng:135.7781,lbl:'Gion',num:'3'},
+    {lat:34.9948,lng:135.7849,lbl:'Kiyomizudera',num:'4'}
+  ],
+  route:[[34.9859,135.7588],[34.9289,135.7706],[35.0142,135.7480],[35.0042,135.7653],[35.0037,135.7781],[34.9948,135.7849]],
+  notes:'Optimized Kyoto evening: Start NW at Nijo Castle, sweep east through Nishiki → Gion → Kiyomizu-dera. The temple glows in the evening. Check Kiyomizu illumination schedule!'
+},
+{
+  day:8, date:'Thursday, April 9', year:'2026',
+  city:'OSAKA', color:'#E67E22', emoji:'🏯',
+  heading:'Osaka Day Trip',
+  location:'Osaka, Japan (day trip from Kyoto)',
+  transit:'🚃 Kyoto → Osaka: JR Special Rapid ~15 min · ¥570\n↳ Return to Urban Hotel Kyoto by evening',
+  hotel:'🏨 Urban Hotel Kyoto (base)\nFushimi-ku, Kyoto',
+  center:[34.683,135.510], zoom:13,
+  activities:[
+    {n:'① Osaka Castle & Park',note:'Take JR Loop Line to Osakajokoen station · 8:00 AM entry · Cherry blossoms in the moat!'},
+    {n:'② Kuromon Ichiba Market (optional)',note:'Osaka\'s "Kitchen" — street food, seafood, grilled meats · 15 min from castle'},
+    {n:'③ Shinsaibashi Shopping Street',note:'Metro south ~10 min · 580m covered arcade · fashion, souvenirs, snacks'},
+    {n:'④ Dotonbori Canal',note:'5 min walk from Shinsaibashi · Running Man, giant crab sign, Glico Man · Instagram central'},
+    {n:'⑤ Teppanyaki Dinner in Minami',note:'Stay in Namba/Dotonbori area for dinner · countless teppanyaki options'},
+    {n:'Return to Kyoto',note:'JR from Osaka → Kyoto ~15 min · last train ~11:30 PM'}
+  ],
+  markers:[
+    {lat:34.6873,lng:135.5262,lbl:'Osaka Castle',num:'1'},
+    {lat:34.6702,lng:135.5065,lbl:'Kuromon Mkt.',num:'2'},
+    {lat:34.6726,lng:135.5003,lbl:'Shinsaibashi',num:'3'},
+    {lat:34.6687,lng:135.5019,lbl:'Dotonbori',num:'4'},
+    {lat:34.6651,lng:135.5014,lbl:'Teppanyaki',num:'5'}
+  ],
+  route:[[34.6873,135.5262],[34.6702,135.5065],[34.6726,135.5003],[34.6687,135.5019],[34.6651,135.5014]],
+  notes:'Osaka day trip: Start early for Osaka Castle (less crowded), then flow south to Namba. Dotonbori is most vibrant at evening — time it right!'
+},
+{
+  day:9, date:'Friday, April 10', year:'2026',
+  city:'KYOTO', color:'#27AE60', emoji:'🚲',
+  heading:'Kyoto Bicycle Day',
+  location:'Kyoto, Japan',
+  transit:'🚲 Rent bicycles near Kyoto Station (¥1,000–1,500/day)\nAll spots connected by Kyoto\'s flat river paths',
+  hotel:'🏨 Urban Hotel Kyoto\nFushimi-ku, Kyoto',
+  center:[34.990,135.715], zoom:12,
+  activities:[
+    {n:'① Fushimi Inari Taisha (early)',note:'5 min from hotel on foot · 10,000 torii gates · Hike starts 5 AM · Go early to beat crowds!'},
+    {n:'② Kyoto Station → Rent Bicycle',note:'Short cab to Kyoto Sta. · Pick up bike near station · Cycle along Kamo River'},
+    {n:'③ Arashiyama Bamboo Grove',note:'Bike west ~25 min along riverside paths · Bamboo grove, Tenryu-ji gardens, Togetsukyo bridge'},
+    {n:'④ Kinkaku-ji (Golden Pavilion)',note:'Bike north ~30 min · Gold-leaf Zen temple reflected in mirror pond · Entry ¥500'},
+    {n:'⑤ Aeon Mall Kyoto (shopping)',note:'Return by bus/subway south · Modern mall near Kyoto Station for last souvenir run'},
+    {n:'Return bike & check in early tonight',note:'Pack up! Leaving Kyoto early tomorrow morning by Shinkansen'}
+  ],
+  markers:[
+    {lat:34.9289,lng:135.7706,lbl:'🏨 Hotel',num:'H'},
+    {lat:34.9671,lng:135.7727,lbl:'Fushimi Inari',num:'1'},
+    {lat:34.9859,lng:135.7588,lbl:'Kyoto Stn.',num:'B'},
+    {lat:35.0094,lng:135.6684,lbl:'Arashiyama',num:'2'},
+    {lat:35.0394,lng:135.7292,lbl:'Kinkaku-ji',num:'3'},
+    {lat:34.9888,lng:135.7538,lbl:'Aeon Mall',num:'4'}
+  ],
+  route:[[34.9671,135.7727],[34.9859,135.7588],[35.0094,135.6684],[35.0394,135.7292],[34.9888,135.7538],[34.9289,135.7706]],
+  notes:'Optimized: Fushimi first (near hotel), then north/west sweep by bicycle. Arashiyama → Kinkaku-ji is a scenic ~30 min riverside ride. Return south to Aeon Mall.'
+},
+{
+  day:10, date:'Saturday, April 11', year:'2026',
+  city:'SEOUL', color:'#3498DB', emoji:'🇰🇷',
+  heading:'Kyoto → Nagoya → Seoul',
+  location:'Nagoya (transit) · Seoul, South Korea',
+  transit:'🚄 8:54 Dep. Kyoto → 9:28 Arr. Nagoya (NOZOMI)\n✈️ NGO → ICN: Depart 6:50 PM · Arrive 8:50 PM',
+  hotel:'🏨 Jinho\'s Guest House\n14-6 Duteopbawi-ro 1na-gil, Yongsan-gu, Seoul 04335\n(Near Itaewon / Seoul Station)',
+  center:[37.555,126.978], zoom:13,
+  activities:[
+    {n:'① Depart Kyoto 8:54 AM (NOZOMI)',note:'Check out of Urban Hotel Kyoto · Shinkansen to Nagoya'},
+    {n:'② Nagoya — drop luggage at NGO Airport',note:'Arrive Nagoya 9:28 AM · Airport Centrair by Meitetsu ~35 min'},
+    {n:'③ Nagoya City (brief explore)',note:'Return from airport to downtown · Nagoya Castle worth a quick visit'},
+    {n:'④ Fly Nagoya (NGO) → Seoul (ICN): 6:50 PM',note:'Return to airport by 5 PM · ~2 hr flight'},
+    {n:'⑤ Arrive Seoul Incheon 8:50 PM',note:'AREX Train to Seoul Station · ~45 min · ¹∕₃ price vs taxi'},
+    {n:'⑥ Myeong-dong Evening',note:'Subway to Myeong-dong station · Night market, K-beauty, street food'},
+    {n:'⑦ Ikseondong Hanok Village (late night)',note:'15 min walk NE from Myeong-dong · Hidden gem — trendy cafes in traditional hanok alleys'}
+  ],
+  markers:[
+    {lat:37.4602,lng:126.4407,lbl:'✈ Incheon',num:'P'},
+    {lat:37.5545,lng:126.9706,lbl:'Seoul Stn.',num:'S'},
+    {lat:37.5361,lng:126.9702,lbl:'🏨 Jinho\'s',num:'H'},
+    {lat:37.5634,lng:126.9850,lbl:'Myeong-dong',num:'1'},
+    {lat:37.5748,lng:126.9960,lbl:'Ikseondong',num:'2'}
+  ],
+  route:[[37.5545,126.9706],[37.5361,126.9702],[37.5634,126.9850],[37.5748,126.9960]],
+  notes:'Pro tip from a local: Ikseondong Hanok Village beats Myeong-dong for atmosphere. Go Myeong-dong first (closer to station), then explore Ikseondong\'s tiny restaurants and cafes!'
+},
+{
+  day:11, date:'Sunday, April 12', year:'2026',
+  city:'SEOUL→SFO', color:'#3498DB', emoji:'🇰🇷✈️',
+  heading:'Seoul Day Trip · Fly Home',
+  location:'Seoul, South Korea',
+  transit:'✈️ Seoul (ICN) 6:50 PM → San Francisco 3:00 PM (same day)\n11 hr 30 min · crossing dateline',
+  hotel:'✈️ Heading home — 11.5 hour flight to SFO',
+  center:[37.570,126.975], zoom:13,
+  activities:[
+    {n:'① Gyeongbokgung Palace',note:'Subway to Gyeongbokgung station · Opens 9 AM · Changing of Guard at 10 AM & 2 PM'},
+    {n:'② Gwanghwamun Square',note:'Walk 5 min south · Grand ceremonial gate, Admiral Yi statue, cultural fountain'},
+    {n:'③ Bukchon Hanok Village',note:'15 min walk NE from palace · Traditional hanok houses on a hillside · 700-year-old village'},
+    {n:'④ Hongdae Street',note:'Subway ~20 min west · University arts district, indie music, street performances, vintage shopping'},
+    {n:'Leave for Incheon Airport by 3:30 PM',note:'AREX from Seoul Station ~45 min · Check in 2 hrs before departure'},
+    {n:'✈️ Fly Seoul → San Francisco 6:50 PM',note:'Arrive SFO 3:00 PM same calendar day (dateline magic!)'}
+  ],
+  markers:[
+    {lat:37.5361,lng:126.9702,lbl:'🏨 Jinho\'s',num:'H'},
+    {lat:37.5796,lng:126.9770,lbl:'Gyeongbokgung',num:'1'},
+    {lat:37.5741,lng:126.9768,lbl:'Gwanghwamun',num:'2'},
+    {lat:37.5824,lng:126.9850,lbl:'Bukchon',num:'3'},
+    {lat:37.5563,lng:126.9225,lbl:'Hongdae',num:'4'},
+    {lat:37.4602,lng:126.4407,lbl:'✈ Incheon',num:'P'}
+  ],
+  route:[[37.5796,126.9770],[37.5741,126.9768],[37.5824,126.9850],[37.5563,126.9225]],
+  notes:'Optimized loop: Palace → Gwanghwamun (back-to-back, very efficient) → Bukchon (walking) → Hongdae (subway). Leave Hongdae by 3 PM for airport.'
+}
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let current = 0;
+const total = DAYS.length + 1; // +1 for cover
+const maps = {};
+
+// ═══════════════════════════════════════════════════════
+//  BUILD SLIDES
+// ═══════════════════════════════════════════════════════
+function buildSlides(){
+  const cont = document.getElementById('slides');
+  DAYS.forEach((d,i)=>{
+    const id = i+1;
+    const div = document.createElement('div');
+    div.className='slide';
+    div.id=`slide-${id}`;
+    div.innerHTML=`
+      <div class="day-slide">
+        <div class="map-pane"><div id="map-${id}" style="width:100%;height:100%"></div></div>
+        <div class="info-pane">
+          <div class="dh-top">
+            <span class="day-badge" style="background:${d.color}20;color:${d.color};border:1px solid ${d.color}40">
+              ${d.city}
+            </span>
+            <span class="day-num">DAY ${d.day} · ${d.year}</span>
+          </div>
+          <div class="dh-date">${d.emoji} ${d.heading}</div>
+          <div class="dh-loc">📍 ${d.location}</div>
+
+          <div class="card">
+            <div class="card-label">✈ Transit</div>
+            <div class="transit-text" style="white-space:pre-line">${d.transit}</div>
+          </div>
+
+          <div class="card">
+            <div class="card-label">🏨 Accommodation</div>
+            <div class="hotel-text" style="white-space:pre-line">${d.hotel}</div>
+          </div>
+
+          ${(()=>{const w=WEATHER[d.day];return w?`<div class="card" style="border-color:rgba(100,160,255,.18)">
+            <div class="card-label" style="color:#90CAF9">🌡️ Weather · ${w.loc}</div>
+            <div class="wx-loc">${w.icon}&nbsp;Historical averages · early April</div>
+            <div class="wx-grid">
+              <div class="wx-cell"><div class="wx-emoji">☀️</div><div class="wx-val">${w.hi}</div><div class="wx-lbl">High</div></div>
+              <div class="wx-cell"><div class="wx-emoji">🌙</div><div class="wx-val">${w.lo}</div><div class="wx-lbl">Low</div></div>
+              <div class="wx-cell"><div class="wx-emoji">🌧️</div><div class="wx-val">${w.precip}</div><div class="wx-lbl">Precip.</div></div>
+              <div class="wx-cell"><div class="wx-emoji">💧</div><div class="wx-val">${w.humidity}</div><div class="wx-lbl">Humidity</div></div>
+            </div>
+          </div>`:''})()}
+
+          <div class="card">
+            <div class="card-label">📍 Optimized Daily Route</div>
+            <ul class="act-list">
+              ${d.activities.map((a,ai)=>`
+                <li class="act-item">
+                  <div class="act-num" style="background:${d.color}25;color:${d.color};border:1.5px solid ${d.color}50">
+                    ${ai+1}
+                  </div>
+                  <div class="act-body">
+                    <div class="act-name">${a.n}</div>
+                    <div class="act-note">${a.note}</div>
+                  </div>
+                </li>`).join('')}
+            </ul>
+          </div>
+
+          ${d.notes?`<div class="card"><div class="card-label">💡 Travel Tips</div><div class="notes-text">${d.notes}</div></div>`:''}
+
+          ${d.suggestions?`<div class="card" style="border-color:rgba(155,89,182,.2)">
+            <div class="card-label" style="color:#B39DDB">✨ Suggested Spots</div>
+            ${d.suggestions.map(area=>`
+              <div class="sugg-area">${area.area}</div>
+              <ul class="sugg-list">
+                ${area.items.map((item,si)=>`
+                  <li class="sugg-item">
+                    <div class="sugg-num" style="background:${area.acolor}20;color:${area.acolor};border:1.5px dashed ${area.acolor}60">${si+1}</div>
+                    <div class="sugg-body">
+                      <a href="${item.url}" target="_blank" class="sugg-name">${item.n} ↗</a>
+                      <div class="sugg-note">${item.note}</div>
+                    </div>
+                  </li>`).join('')}
+              </ul>`).join('')}
+          </div>`:''}
+
+          ${d.food?`<div class="card" style="border-color:rgba(39,174,96,.22)">
+            <div class="card-label" style="color:#66BB6A">🌱 Vegetarian Eats</div>
+            ${d.food.map(area=>`
+              <div class="sugg-area">${area.area}</div>
+              <ul class="sugg-list">
+                ${area.items.map(item=>`
+                  <li class="sugg-item">
+                    <div class="food-dot">🌱</div>
+                    <div class="sugg-body">
+                      <a href="${item.url}" target="_blank" class="sugg-name">${item.n} ↗</a>
+                      <div class="sugg-note">${item.note}</div>
+                    </div>
+                  </li>`).join('')}
+              </ul>`).join('')}
+          </div>`:''}
+
+          <div style="text-align:center;opacity:.2;font-size:11px;margin-top:8px;letter-spacing:2px">
+            ${d.date.toUpperCase()}
+          </div>
+        </div>
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT MAP
+// ═══════════════════════════════════════════════════════
+function initMap(dayIdx){
+  const id = dayIdx+1;
+  if(maps[id]) return;
+  const d = DAYS[dayIdx];
+
+  const m = L.map(`map-${id}`,{
+    center:d.center, zoom:d.zoom,
+    zoomControl:true, attributionControl:false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:19, subdomains:'abcd'
+  }).addTo(m);
+
+  // Route polyline
+  if(d.route&&d.route.length>1){
+    const isAir = d.day===1;
+    if(isAir){
+      // dashed arc for flight
+      L.polyline(d.route,{color:d.color,weight:2,dashArray:'8 6',opacity:.7}).addTo(m);
+    } else {
+      L.polyline(d.route,{color:d.color,weight:3,opacity:.85}).addTo(m);
+    }
+  }
+
+  // Markers
+  d.markers.forEach((mk,mi)=>{
+    const isHotel = mk.num==='H'||mk.num==='S'||mk.num==='K'||mk.num==='B'||mk.num==='P';
+    const markerColor = isHotel ? '#fff' : d.color;
+    const bgColor = isHotel ? d.color : 'rgba(15,15,30,0.9)';
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="
+        background:${bgColor};border:2.5px solid ${markerColor};
+        border-radius:50%;width:28px;height:28px;
+        display:flex;align-items:center;justify-content:center;
+        font-size:10px;font-weight:800;color:${markerColor};
+        box-shadow:0 2px 10px rgba(0,0,0,.6);">
+        ${mk.num}
+      </div>`,
+      iconSize:[28,28],iconAnchor:[14,14]
+    });
+    const labelIcon = L.divIcon({
+      className:'',
+      html:`<div style="
+        background:rgba(10,10,25,0.85);border:1px solid ${d.color}60;
+        border-radius:6px;padding:3px 7px;
+        font-size:10px;font-weight:600;color:#fff;
+        white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4);
+        backdrop-filter:blur(4px);">${mk.lbl}</div>`,
+      iconSize:[null,null],iconAnchor:[-16,-5]
+    });
+    L.marker([mk.lat,mk.lng],{icon}).addTo(m);
+    L.marker([mk.lat,mk.lng],{icon:labelIcon,interactive:false}).addTo(m);
+  });
+
+  // ── Suggestion markers (smaller, dashed border, numbered per-area)
+  if(d.suggestions){
+    d.suggestions.forEach(area=>{
+      const ac = area.acolor || d.color;
+      area.items.forEach((item,si)=>{
+        const icon = L.divIcon({className:'',
+          html:`<div style="background:rgba(10,10,25,.9);border:2px dashed ${ac};border-radius:50%;
+            width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+            font-size:9px;font-weight:800;color:${ac};box-shadow:0 2px 8px rgba(0,0,0,.6);">${si+1}</div>`,
+          iconSize:[20,20],iconAnchor:[10,10]});
+        const lbl = L.divIcon({className:'',
+          html:`<div style="background:rgba(10,10,25,.82);border:1px dashed ${ac}60;border-radius:5px;
+            padding:2px 6px;font-size:9px;font-weight:600;color:${ac};white-space:nowrap;">${item.n}</div>`,
+          iconSize:[null,null],iconAnchor:[-14,-4]});
+        L.marker([item.lat,item.lng],{icon}).addTo(m);
+        L.marker([item.lat,item.lng],{icon:lbl,interactive:false}).addTo(m);
+      });
+    });
+  }
+
+  // ── Food markers (small green circles with 🌱)
+  if(d.food){
+    d.food.forEach(area=>{
+      area.items.forEach(item=>{
+        const icon = L.divIcon({className:'',
+          html:`<div style="background:rgba(39,174,96,.18);border:2px solid #27AE60;border-radius:50%;
+            width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+            font-size:11px;box-shadow:0 2px 8px rgba(0,0,0,.6);">🌱</div>`,
+          iconSize:[20,20],iconAnchor:[10,10]});
+        const lbl = L.divIcon({className:'',
+          html:`<div style="background:rgba(10,10,25,.82);border:1px solid rgba(39,174,96,.4);border-radius:5px;
+            padding:2px 6px;font-size:9px;font-weight:600;color:#66BB6A;white-space:nowrap;">${item.n}</div>`,
+          iconSize:[null,null],iconAnchor:[-14,-4]});
+        L.marker([item.lat,item.lng],{icon}).addTo(m);
+        L.marker([item.lat,item.lng],{icon:lbl,interactive:false}).addTo(m);
+      });
+    });
+  }
+
+  maps[id] = m;
+}
+
+// ═══════════════════════════════════════════════════════
+//  COVER MAP
+// ═══════════════════════════════════════════════════════
+function initCoverMap(){
+  const cm = L.map('cover-map',{
+    center:[32,135],zoom:4,
+    zoomControl:false,attributionControl:false,
+    interactive:false
+  });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:10,subdomains:'abcd'
+  }).addTo(cm);
+  // Route overview
+  const pts=[[37.6,-122.4],[25.08,121.23],[35.68,139.70],[34.99,135.76],[34.99,135.76],[37.52,126.98],[37.62,-122.38]];
+  const cols=['#FF6B9D','#E53935','#E53935','#27AE60','#E67E22','#3498DB'];
+  for(let i=0;i<pts.length-1;i++){
+    L.polyline([pts[i],pts[i+1]],{color:cols[i]||'#fff',weight:1.5,dashArray:'5 5',opacity:.6}).addTo(cm);
+  }
+  const cities=[
+    {c:[37.6,-122.4],lbl:'SFO',col:'#7F8C8D'},
+    {c:[25.08,121.23],lbl:'TPE',col:'#FF6B9D'},
+    {c:[35.68,139.70],lbl:'TYO',col:'#E53935'},
+    {c:[35.00,135.76],lbl:'KYO',col:'#27AE60'},
+    {c:[34.69,135.52],lbl:'OSA',col:'#E67E22'},
+    {c:[37.52,126.98],lbl:'ICN',col:'#3498DB'}
+  ];
+  cities.forEach(cy=>{
+    const ic=L.divIcon({className:'',html:`<div style="background:${cy.col};border:2px solid #fff;border-radius:50%;width:10px;height:10px;box-shadow:0 0 6px ${cy.col}80"></div>`,iconSize:[10,10],iconAnchor:[5,5]});
+    L.marker(cy.c,{icon:ic}).addTo(cm);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function buildDots(){
+  const dots=document.getElementById('dots');
+  for(let i=0;i<total;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===0?' on':'');
+    d.onclick=()=>goTo(i);
+    dots.appendChild(d);
+  }
+}
+
+function updateDots(){
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('on',i===current);
+  });
+  document.getElementById('prog').textContent=`${current+1} / ${total}`;
+}
+
+function goTo(idx){
+  document.getElementById(`slide-${current}`).classList.remove('active');
+  current=idx;
+  document.getElementById(`slide-${current}`).classList.add('active');
+  updateDots();
+  if(current>0){
+    initMap(current-1);
+    // Fix map size after show
+    setTimeout(()=>{
+      const m=maps[current];
+      if(m){m.invalidateSize();m.setView(DAYS[current-1].center,DAYS[current-1].zoom);}
+    },60);
+  }
+}
+
+function next(){if(current<total-1)goTo(current+1);}
+function prev(){if(current>0)goTo(current-1);}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')next();
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')prev();
+});
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+buildSlides();
+buildDots();
+initCoverMap();
+
+// Cherry blossom petals on cover
+function petal(){
+  if(current!==0)return;
+  const p=document.createElement('div');
+  p.className='petal';
+  p.textContent=['🌸','🌺','🌼','🌷'][Math.floor(Math.random()*4)];
+  p.style.left=Math.random()*100+'vw';
+  p.style.animationDuration=(4+Math.random()*4)+'s';
+  p.style.fontSize=(12+Math.random()*10)+'px';
+  document.body.appendChild(p);
+  setTimeout(()=>p.remove(),8000);
+}
+setInterval(petal,600);
+petal(); petal(); petal();
+
+// ── SWIPE GESTURES (touch devices) ───────────────────
+// Swiping on the info panel changes slides.
+// Touches that start on the map are passed to Leaflet unchanged.
+let _tx=0, _ty=0, _onMap=false;
+document.addEventListener('touchstart',e=>{
+  _tx=e.touches[0].clientX;
+  _ty=e.touches[0].clientY;
+  _onMap=!!e.target.closest('.map-pane');
+},{passive:true});
+document.addEventListener('touchend',e=>{
+  if(_onMap)return;
+  const dx=e.changedTouches[0].clientX-_tx;
+  const dy=e.changedTouches[0].clientY-_ty;
+  // Horizontal swipe: dx dominant and > 55px
+  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.5){
+    dx<0?next():prev();
+  }
+},{passive:true});
+</script>
+</body>
+</html>

@@ -354,24 +354,24 @@ const DAYS = [
   notes:'Asakusa + Kappabashi + Akihabara form a natural eastern loop. April = cherry blossom peak 🌸 Ueno Park will be magical!',
   suggestions:[
     {area:'Shinjuku (Near Hotel)', acolor:'#9B59B6', items:[
-      {n:'Hanazono Shrine',note:'Serene Shinto shrine hidden inside Kabukicho · free · open 24 hrs',url:'https://www.hanazono-jinja.or.jp/',lat:35.6920,lng:139.7055},
-      {n:'Kabukicho Tower',note:'Tokyo\'s newest 48-floor landmark · rooftop sky lounge & entertainment complex',url:'https://kabukicho-tower.jp/',lat:35.6947,lng:139.7028},
-      {n:'Isetan Shinjuku',note:'Iconic department store · world-class depachika basement food hall',url:'https://www.isetan.mistore.jp/shinjuku.html',lat:35.6942,lng:139.7070}
+      {n:'Hanazono Shrine',note:'Serene Shinto shrine hidden inside Kabukicho · free · open 24 hrs',lat:35.6920,lng:139.7055},
+      {n:'Kabukicho Tower',note:'Tokyo\'s newest 48-floor landmark · rooftop sky lounge & entertainment complex',lat:35.6947,lng:139.7028},
+      {n:'Isetan Shinjuku',note:'Iconic department store · world-class depachika basement food hall',lat:35.6942,lng:139.7070}
     ]},
     {area:'Akihabara', acolor:'#E53935', items:[
-      {n:'Radio Kaikan',note:'10-floor otaku shopping complex · figures, manga & vintage electronics',url:'https://www.akihabara-radiokaikan.co.jp/',lat:35.7003,lng:139.7720},
-      {n:'Kotobukiya Flagship',note:'Premium anime, Star Wars & Marvel model kits & figures',url:'https://www.kotobukiya.co.jp/store/akihabara/',lat:35.7006,lng:139.7714},
-      {n:'Mandarake Complex',note:'8 floors of vintage manga, rare toys & secondhand collectibles',url:'https://www.mandarake.co.jp/shop/complex/',lat:35.7010,lng:139.7727}
+      {n:'Radio Kaikan',note:'10-floor otaku shopping complex · figures, manga & vintage electronics',lat:35.7003,lng:139.7720},
+      {n:'Kotobukiya Flagship',note:'Premium anime, Star Wars & Marvel model kits & figures',lat:35.7006,lng:139.7714},
+      {n:'Mandarake Complex',note:'8 floors of vintage manga, rare toys & secondhand collectibles',lat:35.7010,lng:139.7727}
     ]}
   ],
   food:[
     {area:'Shinjuku', items:[
-      {n:'Ain Soph Journey',note:'Fully plant-based · vegan burgers & French-inspired desserts · book ahead',url:'https://ain-soph.jp/en/journey/',lat:35.6931,lng:139.7023},
-      {n:'Nagi Shokudo',note:'Beloved tiny vegan café · seasonal teishoku set meals · cash only',url:'https://nagishokudo.com/',lat:35.6918,lng:139.7008}
+      {n:'Ain Soph Journey',note:'Fully plant-based · vegan burgers & French-inspired desserts · book ahead',lat:35.6931,lng:139.7023},
+      {n:'Nagi Shokudo',note:'Beloved tiny vegan café · seasonal teishoku set meals · cash only',lat:35.6918,lng:139.7008}
     ]},
     {area:'Akihabara / Nearby', items:[
-      {n:'T\'s Tantan (Ueno — 1 stop)',note:'Famous vegan ramen · rich sesame-tahini broth · no animal products',url:'https://ts-restaurant.jp/',lat:35.7130,lng:139.7755},
-      {n:'Coco Ichibanya Curry',note:'Japan\'s top curry chain · veg/vegan menu clearly labeled · multiple Akihabara branches',url:'https://www.ichibanya.co.jp/eng/',lat:35.7000,lng:139.7730}
+      {n:'T\'s Tantan (Ueno — 1 stop)',note:'Famous vegan ramen · rich sesame-tahini broth · no animal products',lat:35.7130,lng:139.7755},
+      {n:'Coco Ichibanya Curry',note:'Japan\'s top curry chain · veg/vegan menu clearly labeled · multiple Akihabara branches',lat:35.7000,lng:139.7730}
     ]}
   ]
 },
@@ -640,7 +640,7 @@ function buildSlides(){
                   <li class="sugg-item">
                     <div class="sugg-num" style="background:${area.acolor}20;color:${area.acolor};border:1.5px dashed ${area.acolor}60">${si+1}</div>
                     <div class="sugg-body">
-                      <a href="${item.url}" target="_blank" class="sugg-name">${item.n} ↗</a>
+                      <span class="sugg-name">${item.n}</span>
                       <div class="sugg-note">${item.note}</div>
                     </div>
                   </li>`).join('')}
@@ -656,7 +656,7 @@ function buildSlides(){
                   <li class="sugg-item">
                     <div class="food-dot">🌱</div>
                     <div class="sugg-body">
-                      <a href="${item.url}" target="_blank" class="sugg-name">${item.n} ↗</a>
+                      <span class="sugg-name">${item.n}</span>
                       <div class="sugg-note">${item.note}</div>
                     </div>
                   </li>`).join('')}
